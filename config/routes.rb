@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :organizations
   root 'home#index'
   get  'chat' => 'chat#connection'
   # The priority is based upon order of creation: first created -> highest priority.

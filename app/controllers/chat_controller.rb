@@ -19,7 +19,23 @@ class ChatController < ApplicationController
 
       # when the socket receives a message, publish to redis
       tubesock.onmessage do |message|
-        Redis.new.publish 'chat', message
+        values = JSON.parse message
+
+        # search the organization
+        organization_token = values['info']['token']
+        organization = Organization.find_by_token organization_token
+
+        if organization and values['type'] == 'connect'
+          request = Request.new
+          request.name = values['info']['name']
+          request.status = :open
+          request.token = values['id']
+          request.organization = organization
+          request.save
+
+          redis = Redis.new
+          redis.publish organization.token, 'update'
+        end
       end
 
       # if the socket closes the connection, kill the thread

@@ -9,7 +9,7 @@
     };
 
   $(document).ready(function() {
-    socket = new WebSocket('ws://localhost/chat');
+    var socket = new WebSocket('ws://localhost/chat');
 
     socket.onmessage = function(event) {
       $('div#output').append(event.data + '<br>')

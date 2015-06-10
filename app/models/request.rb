@@ -15,4 +15,11 @@ class Request < ActiveRecord::Base
 
   belongs_to :organization
 
+  def self.open_by_organization_token(token)
+    includes(:organization)
+    .references(:organization)
+    .where(status: 'open', organizations: {token: token})
+    .order(:created_at)
+  end
+
 end

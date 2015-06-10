@@ -26,6 +26,7 @@ gem 'redis'
 gem 'puma'
 gem 'tubesock'
 gem 'haml'
+gem 'rails-backbone'
 
 group :development, :test do
   gem 'byebug'

@@ -1,6 +1,6 @@
 (function($){
   $(document).ready(function() {
-    socket = new WebSocket('ws://localhost/chat');
+    socket = new WebSocket('ws://' + window.location.host + '/chat');
 
     socket.onmessage = function(event) {
       $('div#output').append(event.data + '<br>')

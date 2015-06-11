@@ -27,6 +27,7 @@ gem 'puma'
 gem 'tubesock'
 gem 'haml'
 gem 'rails-backbone'
+gem 'handlebars_assets'
 
 group :development, :test do
   gem 'byebug'

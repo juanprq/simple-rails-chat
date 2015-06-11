@@ -1,0 +1,19 @@
+<table>
+  <thead>
+    <tr>
+      <th>nombre chat</th>
+      <th>token</th>
+      <th>creado</th>
+      <th>acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each requests}}
+      <tr>
+        <th>{{name}}</th>
+        <td>{{token}}</td>
+        <td>{{created_at}}</td>
+        <td>ir al chat</td>
+      </tr>
+    {{/each}}
+</table>

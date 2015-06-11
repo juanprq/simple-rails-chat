@@ -1,18 +1,20 @@
 (function($){
   $(document).ready(function() {
-    socket = new WebSocket('ws://' + window.location.host + '/chat');
+    // bind the interactions
 
-    socket.onmessage = function(event) {
-      $('div#output').append(event.data + '<br>')
-    };
+    // socket = new WebSocket('ws://' + window.location.host + '/chat');
 
-    $('input#input').keypress(function(event) {
-      if(event.which == 13) {
-        var input = $(this);
+    // socket.onmessage = function(event) {
+    //   $('div#output').append(event.data + '<br>')
+    // };
 
-        socket.send(input.val());
-        input.val(null);
-      }
-    });
+    // $('input#input').keypress(function(event) {
+    //   if(event.which == 13) {
+    //     var input = $(this);
+
+    //     socket.send(input.val());
+    //     input.val(null);
+    //   }
+    // });
   });
 })($);

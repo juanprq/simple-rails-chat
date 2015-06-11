@@ -15,6 +15,7 @@ gem 'bunny'
 gem 'puma'
 gem 'tubesock'
 gem 'haml'
+gem 'twitter-bootstrap-rails'
 
 group :development, :test do
   gem 'byebug'

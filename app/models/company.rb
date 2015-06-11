@@ -10,4 +10,11 @@
 #
 
 class Company < ActiveRecord::Base
+  before_create :generate_token
+  has_many :agents
+
+  private
+    def generate_token
+      self.token = SecureRandom.base64(24)
+    end
 end

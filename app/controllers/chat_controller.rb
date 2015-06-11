@@ -10,7 +10,7 @@ class ChatController < ApplicationController
       fanout = channel.fanout 'chat'
 
       tubesock.onopen do
-        queue = channel.queue("", :exclusive => true)
+        queue = channel.queue('', :exclusive => true)
         queue.bind(fanout)
         queue.subscribe block: false do |delivery_info, properties, body|
           tubesock.send_data body

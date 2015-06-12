@@ -4,21 +4,17 @@ class ChatController < ApplicationController
   def connection
 
     hijack do |tubesock|
-      connection = Bunny.new
-      connection.start
-      channel = connection.create_channel
-
-      # public working queue
-      public_queue = channel.queue 'chat-public-queue'
+      public_queue_name = 'chat-public-queue'
+      thread = nil
+      connection = nil
 
       # when the socket receives a message, publish to rabbit
       tubesock.onmessage do |message|
         request        = JSON.parse message
-        queue_out_name = "#{request['email']}-out"
-        queue_in_name  = "#{request['email']}-in"
 
-        queue_in  = channel.queue queue_in_name
-        queue_out = channel.queue queue_out_name
+        email = request['email'].gsub('.', '_dot_').gsub('@', 'at')
+        queue_out_name = "#{email}_out"
+        queue_in_name  = "#{email}_in"
 
         # check the type
         case request['type']
@@ -31,28 +27,42 @@ class ChatController < ApplicationController
             agent:     '+573113412790',
           })
 
-          # create and subscribe to the in queue
-          queue_in.subscribe block: false do |delivery_info, properties, body|
-            # send the messages to the chat window
-            values = JSON.parse body
-            message = "#{values['name']}: #{values['message']}"
-            tubesock.send_data message
+          connection = Beaneater.new('localhost:11300')
+
+          # connection.jobs.register queue_in_name do |job|
+          #   values = JSON.parse job
+          #   message = "#{values['name']}: #{values['message']}"
+          #   tubesock.send_data message
+          # end
+          thread = Thread.new do
+            connection.tubes.watch! queue_in_name
+
+            while true
+              job = connection.tubes[queue_in_name].reserve
+
+              values = JSON.parse job.body
+              message = "#{values['name']}: #{values['message']}"
+              tubesock.send_data message
+              job.delete
+            end
           end
 
-          # ask cli consumer to subscribe to queues
-          public_queue.publish request.to_json
-          # send message to the user
-          queue_in.publish({name: 'Server', message: 'connected'}.to_json)
+          connection.tubes[public_queue_name].put request.to_json
+          connection.tubes[queue_in_name].put({name: 'Server', message: 'connected'}.to_json)
         when 'message'
           # when the chat window sends a message, send to the cli
-          queue_out.publish message
+          connection = Beaneater.new('localhost:11300')
+          connection.tubes[queue_out_name].put message
+          puts message
+          connection.close
         end
       end
 
       # if the socket closes the connection
       tubesock.onclose do
         # TODO: if the connection it's closed send message to the agent.
-        connection.close
+        thread.kill if thread
+        connection.close if connection
       end
     end
   end

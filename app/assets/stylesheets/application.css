@@ -13,3 +13,7 @@
  *= require_tree .
  *= require_self
  */
+.chat-output {
+  min-height: 400px;
+  overflow-y: auto;
+}

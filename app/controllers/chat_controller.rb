@@ -7,6 +7,8 @@ class ChatController < ApplicationController
       connection = Bunny.new
       connection.start
       channel = connection.create_channel
+
+      # TODO: this is going to be a dynamic name
       fanout = channel.fanout 'chat'
 
       tubesock.onopen do
@@ -19,8 +21,19 @@ class ChatController < ApplicationController
 
       # when the socket receives a message, publish to rabbit
       tubesock.onmessage do |message|
-        # channel.default_exchange.publish(message, :routing_key => queue.name)
-        fanout.publish message
+        request = JSON.parse message
+
+        # check the type
+        case request['type']
+        when 'open'
+          # TODO:
+          # check for agents, and assign them, subscribe to the fanout.
+          fanout.publish 'server: connected'
+        when 'message'
+          # simple message
+          message = "#{request['name']}: #{request['message']}"
+          fanout.publish message
+        end
       end
 
       # if the socket closes the connection

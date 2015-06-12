@@ -1,5 +1,22 @@
 %h1
-  Chat
+  Support chat
 
-%div#output
-%input#input{autofocus: true}
+#information-form
+  %form
+    .form-group
+      %label{:for => "email"} Correo electronico
+      %input#email.form-control{:placeholder => "juan@algo.com", :type => "email"}
+    .form-group
+      %label{:for => "name"} Nombre
+      %input#name.form-control{:placeholder => "juan daniel"}
+    %button#start-chat.btn.btn-default Iniciar chat
+
+#chat{style: 'display: none;'}
+  %form
+    #output.form-control.chat-output
+    .row
+      .col-md-10
+        %input#input.form-control
+      .col-md-2
+        %button#send.btn.btn-default.btn-block
+          Enviar

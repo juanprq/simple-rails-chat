@@ -9,6 +9,9 @@ class ChatController < ApplicationController
       channel = connection.create_channel
       fanout = nil
 
+      # public working queue
+      public_queue = channel.queue 'chat-public-queue'
+
       # when the socket receives a message, publish to rabbit
       tubesock.onmessage do |message|
         request = JSON.parse message
@@ -22,12 +25,26 @@ class ChatController < ApplicationController
           queue = channel.queue('', :exclusive => true)
           queue.bind(fanout)
           queue.subscribe block: false do |delivery_info, properties, body|
-            tubesock.send_data body
+            # send message to the client chat
+            request = JSON.parse body
+
+            message = "#{request['name']}: #{request['message']}"
+            tubesock.send_data message
           end
-          fanout.publish 'server: connected'
+
+          # send message to the user
+          tubesock.send_data 'server: connected'
+
+          # send to the public queue
+          request = {
+            type:    'subscribe',
+            fanout:  fanout.name,
+            agent:   '+573113412790',
+            request: request
+          }
+          channel.default_exchange.publish(request.to_json, :routing_key => public_queue.name)
         when 'message'
           # simple message
-          message = "#{request['name']}: #{request['message']}"
           fanout.publish message
         end
       end
